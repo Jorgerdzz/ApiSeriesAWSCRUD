@@ -2,6 +2,7 @@ using Amazon.Lambda.Annotations;
 using ApiSeriesAWSCRUD.Data;
 using ApiSeriesAWSCRUD.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ApiSeriesAWSCRUD;
@@ -19,7 +20,10 @@ public class Startup
     /// </summary>
     public void ConfigureServices(IServiceCollection services)
     {
-        string connectionString = @"server=mysqlrdsjra.c4rw82gcesy0.us-east-1.rds.amazonaws.com;port=3306;user id=adminsql;password=Admin123;database=series";
+        var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json", true);
+        var configuration = builder.Build();
+        services.AddSingleton<IConfiguration>(configuration);
+        string connectionString = configuration.GetConnectionString("MySqlSeries");
         services.AddTransient<RepositorySeries>();
         services.AddDbContext<SeriesContext>(options => options.UseMySQL(connectionString));
 
